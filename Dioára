@@ -1,111 +1,111 @@
 <!DOCTYPE html>
-<html lang="cs">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animace Vloček Sněhu s Oblaky, Horami a Jezerem</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #87CEEB; /* pozadí */
-        }
-        canvas {
-            display: block;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animace Vloček Sněhu s Oblaky, Horami a Jezerem</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #87CEEB; /* pozadí */
+    }
+    canvas {
+        display: block;
+    }
+</style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
 
-    <script>
-        // Nastavení
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const flakes = [];
-        let clouds = [];
-        let birds = [];
-        let mountains = [];
-        let lake;
-        let isDay = true;
+<canvas id="canvas"></canvas>
 
-        // Funkce generování náhodného čísla 
-        function randomRange(min, max) {
-            return Math.random() * (max - min) + min;
+<script>
+    // Nastavení
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const flakes = [];
+    let clouds = [];
+    let birds = [];
+    let mountains = [];
+    let lake;
+    let isDay = true;
+
+    // Funkce generování náhodného čísla 
+    function randomRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    // Vločka
+    class Snowflake {
+        constructor(x, y, size, speed) {
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.speed = speed;
         }
 
-        // Vločka
-        class Snowflake {
-            constructor(x, y, size, speed) {
-                this.x = x;
-                this.y = y;
-                this.size = size;
-                this.speed = speed;
+        // pohyb vločky sněhu
+        update() {
+            this.y += this.speed;
+            if (this.y > canvas.height) {
+                this.y = 0;
             }
+        }
 
-            // pohyb vločky sněhu
-            update() {
-                this.y += this.speed;
-                if (this.y > canvas.height) {
-                    this.y = 0;
-                }
+        // vykreslení vločky sněhu
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+        }
+    }
+
+    // Mrak
+    class Cloud {
+        constructor(x, y, radius, numCircles, circleSpacing, speed) {
+            this.x = x;
+            this.y = y;
+            this.radius = radius;
+            this.numCircles = numCircles;
+            this.circleSpacing = circleSpacing;
+            this.speed = speed;
+        }
+
+        // pohyb mraku
+        update() {
+            this.x += this.speed;
+            if (this.x > canvas.width + this.radius * 2 + this.circleSpacing * (this.numCircles - 1)) {
+                this.x = -this.radius * 2 - this.circleSpacing * (this.numCircles - 1); // Resetování pozice mraku, když se dostane mimo obrazovku
+                this.y = randomRange(0, canvas.height / 3); // Nové umístění mraku na náhodné pozici v horní třetině obrazovky
+                this.speed = randomRange(0.1, 0.3); // Náhodná rychlost
             }
+        }
 
-            // vykreslení vločky sněhu
-            draw() {
+        // vykreslení mraku
+        draw() {
+            for (let i = 0; i < this.numCircles; i++) {
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = 'white';
+                ctx.arc(this.x + i * this.circleSpacing, this.y - this.radius, this.radius, 0, Math.PI * 2);
+                ctx.arc(this.x + i * this.circleSpacing, this.y, this.radius, 0, Math.PI * 2);
+                ctx.arc(this.x + i * this.circleSpacing, this.y + this.radius, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
                 ctx.fill();
             }
         }
+    }
 
-        // Mrak
-        class Cloud {
-            constructor(x, y, radius, numCircles, circleSpacing, speed) {
-                this.x = x;
-                this.y = y;
-                this.radius = radius;
-                this.numCircles = numCircles;
-                this.circleSpacing = circleSpacing;
-                this.speed = speed;
-            }
-
-            // pohyb mraku
-            update() {
-                this.x += this.speed;
-                if (this.x > canvas.width + this.radius * 2 + this.circleSpacing * (this.numCircles - 1)) {
-                    this.x = -this.radius * 2 - this.circleSpacing * (this.numCircles - 1); // Resetování pozice mraku, když se dostane mimo obrazovku
-                    this.y = randomRange(0, canvas.height / 3); // Nové umístění mraku na náhodné pozici v horní třetině obrazovky
-                    this.speed = randomRange(0.1, 0.3); // Náhodná rychlost
-                }
-            }
-
-            // vykreslení mraku
-            draw() {
-                for (let i = 0; i < this.numCircles; i++) {
-                    ctx.beginPath();
-                    ctx.arc(this.x + i * this.circleSpacing, this.y - this.radius, this.radius, 0, Math.PI * 2);
-                    ctx.arc(this.x + i * this.circleSpacing, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.arc(this.x + i * this.circleSpacing, this.y + this.radius, this.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                    ctx.fill();
-                }
-            }
+    // Pták
+    class Bird {
+        constructor(x, y, size, speed) {
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.speed = speed;
+            this.direction = Math.random() < 0.5 ? -1 : 1; // Náhodný směr
         }
 
-        // Pták
-        class Bird {
-            constructor(x, y, size, speed) {
-                this.x = x;
-                this.y = y;
-                this.size = size;
-                this.speed = speed;
-                this.direction = Math.random() < 0.5 ? -1 : 1; // Náhodný směr
-            }
-
-            // pohyb ptáka
-            update() {
+        // pohyb ptáka
+        update() {
+            if (isDay) { // Ptáci létají pouze ve dne
                 this.x += this.speed * this.direction;
                 if (this.x > canvas.width) {
                     this.x = -this.size;
@@ -113,9 +113,11 @@
                     this.x = canvas.width;
                 }
             }
+        }
 
-            // vykreslení ptáka
-            draw() {
+        // vykreslení ptáka
+        draw() {
+            if (isDay) { // Ptáci jsou viditelní pouze ve dne
                 // Kreslení křídel
                 ctx.beginPath();
                 ctx.moveTo(this.x - this.size, this.y);
@@ -146,100 +148,83 @@
                 ctx.fill();
             }
         }
+    }
 
-        // Hora
-        class Mountain {
-            constructor(x, y, width, height, color) {
-                this.x = x;
-                this.y = y;
-                this.width = width;
-                this.height = height;
-                this.color = color;
-            }
-
-            // vykreslení hory
-            draw() {
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y);
-                ctx.lineTo(this.x + this.width / 2, this.y - this.height);
-                ctx.lineTo(this.x + this.width, this.y);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
+    // Hora
+    class Mountain {
+        constructor(x, y, width, height, color) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
         }
 
+        // vykreslení hory
+        draw() {
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x + this.width / 2, this.y - this.height);
+            ctx.lineTo(this.x + this.width, this.y);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+    }
 
-        // Jezero
-        class Lake {
-            constructor(x, y, width, height, color) {
-                this.x = x;
-                this.y = y;
-                this.width = width;
-                this.height = height;
-                this.color = color;
-            }
 
-            // vykreslení jezera
-            draw() {
-                ctx.beginPath();
-                ctx.rect(this.x, this.y, this.width, this.height);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
+    // Jezero
+    class Lake {
+        constructor(x, y, width, height, color) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
         }
 
-        // vytvoření vloček sněhu
-        function createSnowflakes() {
-            for (let i = 0; i < 100; i++) {
-                const x = randomRange(0, canvas.width);
-                const y = randomRange(0, canvas.height);
-                const size = randomRange(1, 4);
-                const speed = randomRange(1, 3);
-                flakes.push(new Snowflake(x, y, size, speed));
-            }
+        // vykreslení jezera
+        draw() {
+            ctx.beginPath();
+            ctx.rect(this.x, this.y, this.width, this.height);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+    }
+
+    // Hvězda
+    class Star {
+        constructor(x, y, radius, color) {
+            this.x = x;
+            this.y = y;
+            this.radius = radius;
+            this.color = color;
         }
 
-        // vytvoření počátečních mraků
-        function createInitialClouds() {
-            const numClouds = Math.floor(randomRange(6, 10)); // Náhodný počet mraků
-            for (let i = 0; i < numClouds; i++) {
-                const x = randomRange(0, canvas.width);
-                const y = randomRange(0, canvas.height / 3); // Náhodné umístění v horní třetině obrazovky
-                const radius = randomRange(15, 30);
-                const numCircles = Math.floor(randomRange(5, 10)); // Náhodný počet kruhů
-                const circleSpacing = randomRange(25, 35);
-                const speed = randomRange(0.1, 0.3); // Náhodná rychlost
-                clouds.push(new Cloud(x, y, radius, numCircles, circleSpacing, speed));
-            }
+        // vykreslení hvězdy
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
         }
+    }
 
-        // vytvoření ptáků
-        function createBirds() {
-            for (let i = 0; i < 5; i++) {
-                const x = randomRange(0, canvas.width);
-                const y = randomRange(canvas.height / 3, canvas.height / 2); // Náhodné umístění v horní polovině obrazovky
-                const size = randomRange(2, 5); // Změna velikosti ptáků
-                const speed = randomRange(1, 3);
-                birds.push(new Bird(x, y, size, speed));
-            }
+    // vytvoření vloček sněhu
+    function createSnowflakes() {
+        for (let i = 0; i < 100; i++) {
+            const x = randomRange(0, canvas.width);
+            const y = randomRange(0, canvas.height);
+            const size = randomRange(1, 4);
+            const speed = randomRange(1, 3);
+            flakes.push(new Snowflake(x, y, size, speed));
         }
+    }
 
-        // vytvoření hor
-        function createMountains() {
-            mountains.push(new Mountain(0, canvas.height, canvas.width, canvas.height / 2, '#808080')); // Základní hora
-            mountains.push(new Mountain(-canvas.width / 2, canvas.height, canvas.width, canvas.height / 2, '#006400')); // Levá hora
-            mountains.push(new Mountain(canvas.width / 2, canvas.height, canvas.width, canvas.height / 2, '#006400')); // Pravá hora
-        }
-
-        // vytvoření jezera
-        function createLake() {
-            const lakeHeight = canvas.height / 5;
-            lake = new Lake(0, canvas.height - lakeHeight, canvas.width, lakeHeight, 'blue');
-        }
-
-        // vytvoření nových mraků po zpoždění
-        function spawnCloud() {
-            const x = -randomRange(60, 120); // Začít mimo obrazovku na levé straně
+    // vytvoření počátečních mraků
+    function createInitialClouds() {
+        const numClouds = Math.floor(randomRange(6, 10)); // Náhodný počet mraků
+        for (let i = 0; i < numClouds; i++) {
+            const x = randomRange(0, canvas.width);
             const y = randomRange(0, canvas.height / 3); // Náhodné umístění v horní třetině obrazovky
             const radius = randomRange(15, 30);
             const numCircles = Math.floor(randomRange(5, 10)); // Náhodný počet kruhů
@@ -247,128 +232,190 @@
             const speed = randomRange(0.1, 0.3); // Náhodná rychlost
             clouds.push(new Cloud(x, y, radius, numCircles, circleSpacing, speed));
         }
+    }
 
-        // vykreslení slunce se slunečními paprsky
-        function drawSun() {
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 3;
-            const radius = 50;
-            
-            // Vykreslit slunce
+    // vytvoření ptáků
+    function createBirds() {
+        for (let i = 0; i < 5; i++) {
+            const x = randomRange(0, canvas.width);
+            const y = randomRange(canvas.height / 3, canvas.height / 2); // Náhodné umístění v horní polovině obrazovky
+            const size = randomRange(2, 5); // Změna velikosti ptáků
+            const speed = randomRange(1, 3);
+            birds.push(new Bird(x, y, size, speed));
+        }
+    }
+
+    // vytvoření hor
+    function createMountains() {
+        mountains.push(new Mountain(0, canvas.height, canvas.width, canvas.height / 2, '#808080')); // Základní hora
+        mountains.push(new Mountain(-canvas.width / 2, canvas.height, canvas.width, canvas.height / 2, '#006400')); // Levá hora
+        mountains.push(new Mountain(canvas.width / 2, canvas.height, canvas.width, canvas.height / 2, '#006400')); // Pravá hora
+    }
+
+    // vytvoření jezera
+    function createLake() {
+        const lakeHeight = canvas.height / 5;
+        lake = new Lake(0, canvas.height - lakeHeight, canvas.width, lakeHeight, 'blue');
+    }
+
+    // vytvoření hvězd
+    function createStars() {
+        const numStars = 100;
+        for (let i = 0; i < numStars; i++) {
+            const x = randomRange(0, canvas.width);
+            const y = randomRange(0, canvas.height / 3);
+            const radius = Math.random() * 2;
+            const color = `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.random()})`;
+            const star = new Star(x, y, radius, color);
+            stars.push(star);
+        }
+    }
+
+    // vytvoření nových mraků po zpoždění
+    function spawnCloud() {
+        const x = -randomRange(60, 120); // Začít mimo obrazovku na levé straně
+        const y = randomRange(0, canvas.height / 3); // Náhodné umístění v horní třetině obrazovky
+        const radius = randomRange(15, 30);
+        const numCircles = Math.floor(randomRange(5, 10)); // Náhodný počet kruhů
+        const circleSpacing = randomRange(25, 35);
+        const speed = randomRange(0.1, 0.3); // Náhodná rychlost
+        clouds.push(new Cloud(x, y, radius, numCircles, circleSpacing, speed));
+    }
+
+    // vykreslení slunce se slunečními paprsky
+    function drawSun() {
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 3;
+        const radius = 50;
+        
+        // Vykreslit slunce
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'yellow';
+        ctx.fill();
+
+        // Vykreslit sluneční paprsky
+        for (let i = 0; i < 12; i++) {
+            const angle = (i * 30 * Math.PI) / 180;
+            const x1 = centerX + radius * Math.cos(angle);
+            const y1 = centerY + radius * Math.sin(angle);
+            const x2 = centerX + (radius + 50) * Math.cos(angle);
+            const y2 = centerY + (radius + 50) * Math.sin(angle);
+
             ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            ctx.fillStyle = 'yellow';
-            ctx.fill();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+    }
 
-            // Vykreslit sluneční paprsky
-            for (let i = 0; i < 12; i++) {
-                const angle = (i * 30 * Math.PI) / 180;
-                const x1 = centerX + radius * Math.cos(angle);
-                const y1 = centerY + radius * Math.sin(angle);
-                const x2 = centerX + (radius + 50) * Math.cos(angle);
-                const y2 = centerY + (radius + 50) * Math.sin(angle);
+    // vykreslení měsíce
+    function drawMoon() {
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 3;
+        const radius = 50;
+        
+        // Vykreslit měsíc
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
 
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.lineTo(x2, y2);
-                ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            }
+        // Vykreslit krátery na měsíci
+        ctx.beginPath();
+        ctx.arc(centerX - 20, centerY - 10, 10, 0, Math.PI * 2);
+        ctx.arc(centerX + 20, centerY + 10, 15, 0, Math.PI * 2);
+        ctx.fillStyle = '#87CEEB'; // Udržet barvu pozadí
+        ctx.fill();
+    }
+
+    // animace
+    function animate() {
+        requestAnimationFrame(animate);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Vykreslit slunce nebo měsíc podle denní / noční módy
+        if (isDay) {
+            drawSun();
+        } else {
+            drawMoon();
         }
 
-        // vykreslení měsíce
-        function drawMoon() {
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 3;
-            const radius = 50;
-            
-            // Vykreslit měsíc
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            ctx.fillStyle = 'white';
-            ctx.fill();
+        // Vykreslit a aktualizovat mraky
+        clouds.forEach(cloud => {
+            cloud.update();
+            cloud.draw();
+        });
 
-            // Vykreslit krátery na měsíci
-            ctx.beginPath();
-            ctx.arc(centerX - 20, centerY - 10, 10, 0, Math.PI * 2);
-            ctx.arc(centerX + 20, centerY + 10, 15, 0, Math.PI * 2);
-            ctx.fillStyle = '#87CEEB'; // Udržet barvu pozadí
-            ctx.fill();
-        }
+        // Vykreslit hory
+        mountains.forEach(mountain => {
+            mountain.draw();
+        });
 
-        // animace
-        function animate() {
-            requestAnimationFrame(animate);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Vykreslit slunce nebo měsíc podle denní / noční módy
-            if (isDay) {
-                drawSun();
-            } else {
-                drawMoon();
-            }
+        // Vykreslit jezero
+        lake.draw();
 
-            // Vykreslit a aktualizovat mraky
-            clouds.forEach(cloud => {
-                cloud.update();
-                cloud.draw();
-            });
+        // Vykreslit a aktualizovat vločky sněhu
+        flakes.forEach(flake => {
+            flake.update();
+            flake.draw();
+        });
 
-            // Vykreslit hory
-            mountains.forEach(mountain => {
-                mountain.draw();
-            });
+        // Vykreslit a aktualizovat ptáky
+        birds.forEach(bird => {
+            bird.update();
+            bird.draw();
+        });
 
-            // Vykreslit jezero
-            lake.draw();
-
-            // Vykreslit a aktualizovat vločky sněhu
-            flakes.forEach(flake => {
-                flake.update();
-                flake.draw();
-            });
-
-            // Vykreslit a aktualizovat ptáky
-            birds.forEach(bird => {
-                bird.update();
-                bird.draw();
+        // Vykreslit hvězdy pouze v nočním režimu
+        if (!isDay) {
+            stars.forEach(star => {
+                star.draw();
             });
         }
+    }
 
-        // Inicializace
+    // Inicializace
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    createInitialClouds();
+    createSnowflakes();
+    createBirds();
+    createMountains();
+    createLake();
+    let stars = [];
+    if (!isDay) {
+        createStars();
+    }
+    animate();
+
+    // Spawnovat nové mraky každých 10 sekund
+    setInterval(spawnCloud, 10000);
+
+    // Přepnout denní / noční mód při kliknutí
+    canvas.addEventListener('click', () => {
+        isDay = !isDay;
+        if (!isDay) {
+            document.body.style.backgroundColor = '#000'; // Změnit pozadí na černou pro noční mód
+            stars = [];
+            createStars();
+        } else {
+            document.body.style.backgroundColor = '#87CEEB'; // Změnit pozadí zpět na světle modrou pro denní mód
+            stars = [];
+        }
+    });
+
+    // Změnit velikost plátna při změně velikosti okna
+    window.addEventListener('resize', () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        createInitialClouds();
-        createSnowflakes();
-        createBirds();
-        createMountains();
-        createLake();
-        animate();
-
-        // Spawnovat nové mraky každých 10 sekund
-        setInterval(spawnCloud, 10000);
-
-        // Přepnout denní / noční mód při kliknutí
-        canvas.addEventListener('click', () => {
-            isDay = !isDay;
-            if (!isDay) {
-                document.body.style.backgroundColor = '#000'; // Změnit pozadí na černou pro noční mód
-            } else {
-                document.body.style.backgroundColor = '#87CEEB'; // Změnit pozadí zpět na světle modrou pro denní mód
-            }
-        });
-
-        // Změnit velikost plátna při změně velikosti okna
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            mountains = []; // Resetovat hory při změně velikosti
-            lake = null; // Resetovat jezero při změně velikosti
-            createMountains(); // Vytvořit hory znovu po změně velikosti
-            createLake(); // Vytvořit jezero znovu po změně velikosti
-        });
-    </script>
+        mountains = []; // Resetovat hory při změně velikosti
+        lake = null; // Resetovat jezero při změně velikosti
+        createMountains(); // Vytvořit hory znovu po změně velikosti
+        createLake(); // Vytvořit jezero znovu po změně velikosti
+    });
+</script>
 </body>
 </html>
-
